@@ -172,70 +172,78 @@ int main(){
         int choice;
         cin>>choice;
 
+        /*---------------- REGISTER ----------------*/
         if(choice==1){
+
             vector<User> users=FileManager::loadusers();
             string name,phone,pin;
 
-            cout<<"Enter your Name:";
+            cout<<"Enter your Name: ";
             cin>>name;
 
-            cout<<"Enter your phone number:";
+            cout<<"Enter your phone number: ";
             cin>>phone;
 
             bool exists=false;
-            for(auto&u:users){
+            for(auto &u:users){
                 if(u.getPhone()==phone){
                     exists=true;
                     break;
                 }
             }
+
             if(exists){
-                cout<<"Hey You're Already Registered! Kindly Login.";
+                cout<<"Hey You're Already Registered! Kindly Login.\n";
                 continue;
             }
-            cout<<"Set Pin:";
+
+            cout<<"Set Pin: ";
             cin>>pin;
 
             users.push_back(User(name,phone,pin,0));
             FileManager::Saveusers(users);
+
             cout<<"Registration Successful\n";
         }
 
+        /*---------------- LOGIN ----------------*/
         else if(choice==2){
 
             vector<User> users=FileManager::loadusers();
+            string phone,pin;
 
-            string phone, pin;
-
-            cout<<"Enter your phone number:";
+            cout<<"Enter your phone number: ";
             cin>>phone;
 
-            cout<<"Enter your pin:";
+            cout<<"Enter your pin: ";
             cin>>pin;
 
             bool loggedIn=false;
 
             for(auto &u:users){
+
                 if(u.getPhone()==phone && u.VerifyPin(pin)){
+
                     loggedIn=true;
 
-                    cout<<"Welcome Back to DigiPay"
-                    <<u.getName()<<endl;
+                    cout<<"Welcome Back to DigiPay "
+                        <<u.getName()<<endl;
 
                     while(true){
-                        
-                        cout<<"-----Choose From Your Wallet Menu:-----"<<endl;
-                        cout<<"1.Add Money"<<endl;
-                        cout<<"2.Send Money"<<endl;
-                        cout<<"3.Check Balance"<<endl;
-                        cout<<"4.Transactions"<<endl;
-                        cout<<"5.Logout"<<endl;
-                        cout<<"Enter your choice:"<<endl;
+
+                        cout<<"\n-----Choose From Your Wallet Menu:-----\n";
+                        cout<<"1.Add Money\n";
+                        cout<<"2.Send Money\n";
+                        cout<<"3.Check Balance\n";
+                        cout<<"4.Transactions\n";
+                        cout<<"5.Logout\n";
+                        cout<<"Enter your choice: ";
 
                         int opt;
                         cin>>opt;
 
                         if(opt==1){
+
                             double amount;
                             cout<<"Enter amount: ";
                             cin>>amount;
@@ -244,79 +252,97 @@ int main(){
                             FileManager::Saveusers(users);
 
                             Transaction t("Credit", amount);
-                            FileManager::saveTransaction(t.toFileFormat(phone));
+                            FileManager::saveTransaction(
+                                t.toFileFormat(phone));
 
-                            cout<<"Your account is credited with "<<amount<<" ruppees\n";
+                            cout<<"Your account is credited with "
+                                <<amount<<" rupees\n";
                         }
+
                         else if(opt==2){
+
                             string receiver;
                             double amount;
 
-                            cout<<"Enter Receiver's Phone:";
+                            cout<<"Enter Receiver's Phone: ";
                             cin>>receiver;
 
-                            cout<<"Enter amount to be sent:";
+                            cout<<"Enter amount to be sent: ";
                             cin>>amount;
 
                             bool receiverFound=false;
+
                             for(auto &r:users){
+
                                 if(r.getPhone()==receiver){
+
                                     receiverFound=true;
-                                
-                                if(u.getWallet().deductMoney(amount)){
 
-                                    r.getWallet().addMoney(amount);
-                                    FileManager::Saveusers(users);
+                                    if(u.getWallet().deductMoney(amount)){
 
-                                    Transaction t1("Debit",amount);
-                                    FileManager::saveTransaction(t1.toFileFormat(phone));
+                                        r.getWallet().addMoney(amount);
+                                        FileManager::Saveusers(users);
 
-                                    Transaction t2("Credit",amount);
-                                    FileManager::saveTransaction(t2.toFileFormat(receiver));
+                                        Transaction t1("Debit",amount);
+                                        FileManager::saveTransaction(
+                                            t1.toFileFormat(phone));
 
-                                    cout<<"Transaction Successfull\n";
-                                }
-                                else{
-                                    cout<<"Insufficient Balance! Add Money to your Wallet\n";
-                                }
-                                break;
+                                        Transaction t2("Credit",amount);
+                                        FileManager::saveTransaction(
+                                            t2.toFileFormat(receiver));
+
+                                        cout<<"Transaction Successful\n";
+                                    }
+                                    else{
+                                        cout<<"Insufficient Balance!\n";
+                                    }
+                                    break;
                                 }
                             }
 
-                            if (!receiverFound){
+                            if(!receiverFound){
                                 cout<<"Receiver Not Found!\n";
                             }
                         }
-                            else if(opt==3){
-                                cout<<"Your current balance is: "<<u.getWallet().getBalance()<<endl;
-                            }
-                            else if(opt==4){
-                                FileManager::showTransactions(phone);
-                            }
-                            else if(opt==5){
-                                cout<<"OK! You choose to leave the app.\n";
-                                break;
-                            }
-                            else{
-                                cout<<"Invalid Choice!\n"<<"Please enter a valid input !";
 
-                            }
+                        else if(opt==3){
+                            cout<<"Your current balance is: "
+                                <<u.getWallet().getBalance()<<endl;
                         }
 
+                        else if(opt==4){
+                            FileManager::showTransactions(phone);
+                        }
+
+                        else if(opt==5){
+                            cout<<"Logged Out.\n";
+                            break;
+                        }
+
+                        else{
+                            cout<<"Invalid Choice!\n";
+                        }
                     }
-                }
-                if(!loggedIn){
-                    cout<<"Ohh NO! Invalid Credentials.\n";
-                }
-                else if(choice==3){
-                    cout<<"Thank you for using DigiPay!\n";
+
                     break;
                 }
-                else{
-                    cout<<"Invalid Choice!\n"<<"endl"<<"Select a choice";
-                }
+            }
+
+            if(!loggedIn){
+                cout<<"Ohh NO! Invalid Credentials.\n";
             }
         }
-        return 0;
+
+        /*---------------- EXIT ----------------*/
+        else if(choice==3){
+            cout<<"Thank you for using DigiPay!\n";
+            break;
+        }
+
+        else{
+            cout<<"Invalid Choice!\n";
+        }
     }
 
+    return 0;
+}
