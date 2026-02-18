@@ -47,7 +47,7 @@ public:
         this->balance+=amount;
     }
 
-    bool dedctMoney(double amount){
+    bool deductMoney(double amount){
         if(balance>=amount){
             balance-=amount;
             return true;
@@ -55,24 +55,41 @@ public:
         return false;
     }
 };
-
-
-
-
-
+/*------------------------------user----------------------------------------------------*/
 class User{
 private:
     string name;
     string phone;
     string pin;
-    string wallet;
+    Wallet wallet;
 
 public:
-    User(string n, string p, string pi, string w){
+    User(string n, string p, string pi, double w){
     this->name=n;
     this->phone=p;
     this->pin=pi;
     this->wallet=w;
+    }
+    string getName(){
+        return name;
+    }
 
+    string getPhone(){
+        return phone;
+    }
+
+    string getPin(){
+        return pin;
+    }
+
+    double getWallet(){
+        return wallet.getBalance();
+    }
+    
+    bool VerifyPin(string inputPin){
+        return this->pin==inputPin;
+    }
+string toFileFormat(){
+    return name + "|" + phone + "|" + pin + "|" + to_string(wallet.getBalance());
 }
 };
