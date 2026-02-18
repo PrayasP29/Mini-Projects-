@@ -82,8 +82,8 @@ public:
         return pin;
     }
 
-    double getWallet(){
-        return wallet.getBalance();
+    Wallet& getWallet(){
+        return wallet;
     }
     
     bool VerifyPin(string inputPin){
@@ -128,6 +128,12 @@ public:
         }
         file.close();
     }
+    
+    static void saveTransaction(string record) {
+        ofstream file("transactions.txt", ios::app);
+        file << record << endl;
+        file.close();
+    }
 
     static void showTransactions(string phone){
         ifstream file("transactions.txt");
@@ -151,3 +157,141 @@ public:
         file.close();
     }
 };
+/*-----------------------------------The Main Function--------------------------*/
+
+int main(){
+    
+    while(true){
+
+        cout<<"\n-----Welcome to DigiPay------\n";
+        cout<<"1.Register(New User)\n";
+        cout<<"2.Login\n";
+        cout<<"3.Exit\n";
+        cout<<"Enter a choice: ";
+
+        int choice;
+        cin>>choice;
+
+        if(choice==1){
+            vector<User> users=FileManager::loadusers();
+            string name,phone,pin;
+
+            cout<<"Enter your Name:";
+            cin>>name;
+
+            cout<<"Enter your phone number:";
+            cin>>phone;
+
+            bool exists=false;
+            for(auto&u:users){
+                if(u.getPhone()==phone){
+                    exists=true;
+                    break;
+                }
+            }
+            if(exists){
+                cout<<"Hey You're Already Registered! Kindly Login.";
+                continue;
+            }
+            cout<<"Set Pin:";
+            cin>>pin;
+
+            users.push_back(User(name,phone,pin,0));
+            FileManager::Saveusers(users);
+            cout<<"Registration Successful\n";
+        }
+
+        else if(choice==2){
+
+            vector<User> users=FileManager::loadusers();
+
+            string phone, pin;
+
+            cout<<"Enter your phone number:";
+            cin>>phone;
+
+            cout<<"Enter your pin:";
+            cin>>pin;
+
+            bool loggedIn=false;
+
+            for(auto &u:users){
+                if(u.getPhone()==phone && u.VerifyPin(pin)){
+                    loggedIn=true;
+
+                    cout<<"Welcome Back to DigiPay"
+                    <<u.getName()<<endl;
+
+                    while(true){
+                        
+                        cout<<"-----Choose From Your Wallet Menu:-----"<<endl;
+                        cout<<"1.Add Money"<<endl;
+                        cout<<"2.Send Money"<<endl;
+                        cout<<"3.Check Balance"<<endl;
+                        cout<<"4.Transactions"<<endl;
+                        cout<<"5.Logout"<<endl;
+                        cout<<"Enter your choice:"<<endl;
+
+                        int opt;
+                        cin>>opt;
+
+                        if(opt==1){
+                            double amount;
+                            cout<<"Enter amount: ";
+                            cin>>amount;
+
+                            u.getWallet().addMoney(amount);
+                            FileManager::Saveusers(users);
+
+                            Transaction t("Credit", amount);
+                            FileManager::saveTransaction(t.toFileFormat(phone));
+
+                            cout<<"Your account is credited with "<<amount<<" ruppees\n";
+                        }
+                        else if(opt==2){
+                            string receiver;
+                            double amount;
+
+                            cout<<"Enter Receiver's Phone:";
+                            cin>>receiver;
+
+                            cout<<"Enter amount to be sent:";
+                            cin>>amount;
+
+                            bool receiverFound=false;
+                            for(auto &r:users){
+                                if(r.getPhone()==receiver){
+                                    receiverFound=true;
+                                
+                                if(u.getWallet().deductMoney(amount)){
+
+                                    r.getWallet().addMoney(amount);
+                                    FileManager::Saveusers(users);
+
+                                    Transaction t1("Debit",amount);
+                                    FileManager::saveTransaction(t1.toFileFormat(phone));
+
+                                    Transaction t2("Credit",amount);
+                                    FileManager::saveTransaction(t2.toFileFormat(receiver));\
+
+                                    cout<<"Transaction Successfull\n";
+                                }
+                                else{
+                                    cout<<"Insufficient Balance! Add Money to your Wallet\n";
+                                }
+                                break;
+                                }
+                            }
+
+                            if (!receiverFound){
+                                cout<<"Receiver Not Found!\n";
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+}
