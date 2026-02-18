@@ -121,7 +121,7 @@ public:
 }
 
     static void Saveusers(vector<User>&users){
-        ofstream file("users.text");
+        ofstream file("users.txt");
 
         for(auto &u:users){
             file<<u.toFileFormat()<<endl;
@@ -272,7 +272,7 @@ int main(){
                                     FileManager::saveTransaction(t1.toFileFormat(phone));
 
                                     Transaction t2("Credit",amount);
-                                    FileManager::saveTransaction(t2.toFileFormat(receiver));\
+                                    FileManager::saveTransaction(t2.toFileFormat(receiver));
 
                                     cout<<"Transaction Successfull\n";
                                 }
@@ -287,11 +287,36 @@ int main(){
                                 cout<<"Receiver Not Found!\n";
                             }
                         }
+                            else if(opt==3){
+                                cout<<"Your current balance is: "<<u.getWallet().getBalance()<<endl;
+                            }
+                            else if(opt==4){
+                                FileManager::showTransactions(phone);
+                            }
+                            else if(opt==5){
+                                cout<<"OK! You choose to leave the app.\n";
+                                break;
+                            }
+                            else{
+                                cout<<"Invalid Choice!\n"<<"Please enter a valid input !";
+
+                            }
+                        }
 
                     }
                 }
+                if(!loggedIn){
+                    cout<<"Ohh NO! Invalid Credentials.\n";
+                }
+                else if(choice==3){
+                    cout<<"Thank you for using DigiPay!\n";
+                    break;
+                }
+                else{
+                    cout<<"Invalid Choice!\n"<<"endl"<<"Select a choice";
+                }
             }
         }
+        return 0;
     }
 
-}
