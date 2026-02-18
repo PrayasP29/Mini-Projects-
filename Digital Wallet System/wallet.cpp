@@ -93,3 +93,61 @@ string toFileFormat(){
     return name + "|" + phone + "|" + pin + "|" + to_string(wallet.getBalance());
 }
 };
+
+/*-----------------------------Managing File----------------------------------*/
+
+class FileManager{
+public:
+    static vector<User>loadusers(){
+        vector<User>users;
+        ifstream file("users.txt");
+        string line;
+
+    while (getline(file,line)){
+    stringstream ss(line);
+    string name,phone,pin,balance;
+
+    getline(ss,name,'|');
+    getline(ss,phone,'|');
+    getline(ss,pin,'|');
+    getline(ss,balance,'|');
+
+    users.push_back(
+        User(name,phone,pin,stod(balance))
+    );
+    }
+    file.close();
+    return users;
+}
+
+    static void Saveusers(vector<User>&users){
+        ofstream file("users.text");
+
+        for(auto &u:users){
+            file<<u.toFileFormat()<<endl;
+        }
+        file.close();
+    }
+
+    static void showTransactions(string phone){
+        ifstream file("transactions.txt");
+        string line;
+
+        cout<<"\n-----Transaction History----";
+
+        while (getline(file,line)){
+            stringstream ss(line);
+            string fphone,type,amount,date;
+
+            getline(ss,fphone,'|');
+            getline(ss,type,'|');
+            getline(ss,amount,'|');
+            getline(ss,date,'|');
+
+            if(fphone==phone){
+                cout<<type<<"|"<<amount<<"||"<<date<<endl;
+            }
+        }
+        file.close();
+    }
+};
